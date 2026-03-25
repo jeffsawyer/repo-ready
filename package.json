@@ -1,0 +1,62 @@
+{
+  "name": "repo-ready",
+  "version": "0.4.0",
+  "description": "Zero-friction release automation setup for JS/TS repos — release-it, changelog, commitlint, lefthook, GitHub Actions, and Slack notifications in one command.",
+  "keywords": [
+    "release-it",
+    "commitlint",
+    "lefthook",
+    "changelog",
+    "semantic-release",
+    "github-actions",
+    "cli",
+    "scaffold"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/repo-ready"
+  },
+  "type": "module",
+  "bin": {
+    "repo-ready": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build",
+    "release": "release-it --ci",
+    "prepare": "lefthook install"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "enquirer": "^2.4.1",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.2.0",
+    "ora": "^8.0.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@eslint/js": "^10.0.1",
+    "@release-it/conventional-changelog": "^10.0.6",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.0",
+    "eslint": "^10.1.0",
+    "lefthook": "^2.1.4",
+    "prettier": "^3.8.1",
+    "release-it": "^19.2.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.57.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

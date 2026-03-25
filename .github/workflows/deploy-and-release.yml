@@ -1,0 +1,26 @@
+# Example: wire the release into your deploy pipeline
+# Customize this to match your actual deploy steps
+name: Deploy and Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  # Add your CI/deploy jobs here, e.g.:
+  # ci:
+  #   uses: ./.github/workflows/ci.yml
+  #   secrets: inherit
+  #
+  # deploy:
+  #   needs: [ci]
+  #   ...
+
+  release:
+    # If you have deploy jobs, add: needs: [deploy]
+    uses: ./.github/workflows/release.yml
+    secrets: inherit
