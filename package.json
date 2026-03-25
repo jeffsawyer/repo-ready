@@ -1,6 +1,6 @@
 {
   "name": "repo-ready",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-friction release automation setup for JS/TS repos — release-it, changelog, commitlint, lefthook, GitHub Actions, and Slack notifications in one command.",
   "keywords": [
     "release-it",
