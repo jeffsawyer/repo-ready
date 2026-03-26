@@ -1,6 +1,6 @@
 {
   "name": "@jeffsawyer/repo-ready",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Zero-friction release automation setup for JS/TS repos — release-it, changelog, commitlint, lefthook, GitHub Actions, and Slack notifications in one command.",
   "keywords": [
     "release-it",
