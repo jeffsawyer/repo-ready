@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1](https://github.com/jeffsawyer/repo-ready/compare/v0.3.0...v0.3.1) (2026-03-27)
+
 ## [0.3.0](https://github.com/jeffsawyer/repo-ready/compare/v0.2.4...v0.3.0) (2026-03-27)
 
 ### Features
