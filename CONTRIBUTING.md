@@ -13,16 +13,16 @@ This project follows the [Conventional Commits](https://www.conventionalcommits.
 
 | Type       | Description                  | Appears in CHANGELOG |
 |------------|------------------------------|----------------------|
-| `feat`     | New feature                  | ✅                   |
-| `fix`      | Bug fix                      | ✅                   |
-| `refactor` | Code change (no feature/fix) | ✅                   |
-| `perf`     | Performance improvement      | ✅                   |
-| `docs`     | Documentation only           | ❌                   |
-| `test`     | Adding or updating tests     | ❌                   |
-| `build`    | Build system or dependencies | ❌                   |
-| `ci`       | CI/CD configuration          | ❌                   |
-| `chore`    | Maintenance / tooling        | ❌                   |
-| `style`    | Formatting (no code change)  | ❌                   |
+| `feat`     | New feature                  | Yes ✓                |
+| `fix`       | Bug fix                       | Yes ✓                |
+| `refactor` | Code change (no feature/fix)  | Yes ✓                |
+| `perf`     | Performance improvement      | Yes ✓                |
+| `docs`     | Documentation only           | No  x                |
+| `test`     | Adding or updating tests     | No  x                |
+| `build`    | Build system or dependencies | No  x                |
+| `ci`       | CI/CD configuration           | No  x                |
+| `chore`    | Maintenance / tooling        | No  x                |
+| `style`    | Formatting (no code change)  | No  x                |
 
 ### Format
 
@@ -57,12 +57,12 @@ FEAT: things              # uppercase type
 
 [Lefthook](https://github.com/evilmartians/lefthook) runs the following hooks automatically:
 
-| Hook                   | What it does                                                   |
-|------------------------|----------------------------------------------------------------|
+| Hook                   | What it does                                                  |
+|------------------------|---------------------------------------------------------------|
 | `pre-commit` → format  | Runs Prettier on staged files                                  |
 | `pre-commit` → lint    | Runs ESLint on staged files                                    |
 | `prepare-commit-msg`   | Auto-appends Jira ticket from branch name (e.g. `[PROJ-123]`) |
-| `commit-msg`           | Validates commit message follows conventional commits          |
+| `commit-msg`           | Validates commit message follows conventional commits         |
 
 Hooks are installed automatically. If they stop working, run:
 

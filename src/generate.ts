@@ -31,22 +31,13 @@ export async function generateFiles(
     }
 
     // GitHub workflows
-    await fs.writeFile(
-      ".github/workflows/release.yml",
-      generateReleaseWorkflow(config, detected)
-    );
+    await fs.writeFile(".github/workflows/release.yml", generateReleaseWorkflow(config, detected));
     generated.push(".github/workflows/release.yml");
 
-    await fs.writeFile(
-      ".github/workflows/deploy-and-release.yml",
-      generateDeployWorkflow(config)
-    );
+    await fs.writeFile(".github/workflows/deploy-and-release.yml", generateDeployWorkflow(config));
     generated.push(".github/workflows/deploy-and-release.yml");
 
-    await fs.writeFile(
-      ".github/workflows/pr-title.yml",
-      generatePrTitleWorkflow()
-    );
+    await fs.writeFile(".github/workflows/pr-title.yml", generatePrTitleWorkflow());
     generated.push(".github/workflows/pr-title.yml");
 
     // PR template
@@ -76,20 +67,14 @@ export async function generateFiles(
           ".lefthook/prepare-commit-msg/add-tracked-issue.sh",
           issueTrackerScript(config.issueTracker, config.customIssuePattern)
         );
-        await fs.chmod(
-          ".lefthook/prepare-commit-msg/add-tracked-issue.sh",
-          "755"
-        );
+        await fs.chmod(".lefthook/prepare-commit-msg/add-tracked-issue.sh", "755");
         generated.push(".lefthook/prepare-commit-msg/add-tracked-issue.sh");
       }
     }
 
     // CONTRIBUTING.md
     if (config.overwriteContributing) {
-      await fs.writeFile(
-        "CONTRIBUTING.md",
-        generateContributing(config, detected)
-      );
+      await fs.writeFile("CONTRIBUTING.md", generateContributing(config, detected));
       generated.push("CONTRIBUTING.md");
     }
 
@@ -188,18 +173,20 @@ function commitlintConfig(): string {
 }
 
 function prettierConfig(): string {
-  return JSON.stringify(
-    {
-      semi: true,
-      singleQuote: false,
-      trailingComma: "es5",
-      printWidth: 100,
-      tabWidth: 2,
-      useTabs: false,
-    },
-    null,
-    2
-  ) + "\n";
+  return (
+    JSON.stringify(
+      {
+        semi: true,
+        singleQuote: false,
+        trailingComma: "es5",
+        printWidth: 100,
+        tabWidth: 2,
+        useTabs: false,
+      },
+      null,
+      2
+    ) + "\n"
+  );
 }
 
 function eslintConfig(): string {
@@ -227,10 +214,12 @@ prepare-commit-msg:
   return `pre-commit:
   commands:
     format:
-      glob: '!**/node_modules/**/*.{js,jsx,ts,tsx}'
+      glob: '**/*.{js,jsx,ts,tsx}'
+      exclude: '**/node_modules/**'
       run: npx prettier --write {staged_files} && git add {staged_files}
     lint:
-      glob: '!**/node_modules/**/*.{js,jsx,ts,tsx}'
+      glob: '**/*.{js,jsx,ts,tsx}'
+      exclude: '**/node_modules/**'
       run: npx eslint --fix --no-warn-ignored {staged_files} && git add {staged_files}
 ${prepareHook}
 commit-msg:

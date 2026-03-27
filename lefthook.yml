@@ -1,10 +1,12 @@
 pre-commit:
   commands:
     format:
-      glob: '!**/node_modules/**/*.{js,jsx,ts,tsx}'
+      glob: '**/*.{js,jsx,ts,tsx}'
+      exclude: '**/node_modules/**'
       run: npx prettier --write {staged_files} && git add {staged_files}
     lint:
-      glob: '!**/node_modules/**/*.{js,jsx,ts,tsx}'
+      glob: '**/*.{js,jsx,ts,tsx}'
+      exclude: '**/node_modules/**'
       run: npx eslint --fix --no-warn-ignored {staged_files} && git add {staged_files}
 
 prepare-commit-msg:
