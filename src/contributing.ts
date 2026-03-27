@@ -1,14 +1,21 @@
 import type { UserConfig } from "./prompts.js";
 import type { DetectResult } from "./detect.js";
 
-export function generateContributing(config: UserConfig, detected: DetectResult): string {
-  const { prodBranch, includeCommitlint, includeSlack } = config;
+export function generateContributing(
+  config: UserConfig,
+  detected: DetectResult
+): string {
+  const { prodBranch, includeCommitlint, includeSlack, issueTracker } = config;
   const { installCmd, runCmd } = detected;
 
   const hookEnforcement = includeCommitlint
     ? `- **Locally**: [lefthook](https://github.com/evilmartians/lefthook) runs [commitlint](https://commitlint.js.org/) on every commit via the \`commit-msg\` git hook
 - **On GitHub**: A PR title check workflow validates that PR titles follow the same format (since we squash-merge, the PR title becomes the merge commit message)`
     : `- **On GitHub**: A PR title check workflow validates that PR titles follow conventional commits (since we squash-merge, the PR title becomes the merge commit message)`;
+
+  const issueTrackerRow = issueTracker !== "none"
+    ? `| \`prepare-commit-msg\`   | Auto-appends issue ID from branch name (e.g. \`[PROJ-123]\`, \`(#42)\`) |`
+    : "";
 
   const hooksSection = includeCommitlint
     ? `
@@ -20,7 +27,7 @@ export function generateContributing(config: UserConfig, detected: DetectResult)
 |------------------------|----------------------------------------------------------------|
 | \`pre-commit\` → format  | Runs Prettier on staged files                                  |
 | \`pre-commit\` → lint    | Runs ESLint on staged files                                    |
-| \`prepare-commit-msg\`   | Auto-appends Jira ticket from branch name (e.g. \`[PROJ-123]\`) |
+${issueTrackerRow}
 | \`commit-msg\`           | Validates commit message follows conventional commits          |
 
 Hooks are installed automatically. If they stop working, run:
@@ -33,18 +40,27 @@ npx lefthook install
 `
     : "";
 
-  const jiraSection = includeCommitlint
+  const issueTrackerSection = issueTracker !== "none"
     ? `
-### Jira ticket in commits
+### Issue tracking in commits
 
-A \`prepare-commit-msg\` hook automatically appends the Jira ticket number from your branch name to each commit message. For example, on branch \`feature/PROJ-42-add-checkout\`, a commit \`feat: add cart total\` becomes \`feat: add cart total [PROJ-42]\`.
+A \`prepare-commit-msg\` hook automatically appends the issue ID from your branch name to each commit message.
 
-- You don't need to manually include the ticket — the hook handles it
-- If you do include it manually, the hook won't duplicate it
+| Tracker | Branch example | Result |
+|---------|---------------|--------|
+| Jira/Linear | \`feature/PROJ-42-add-checkout\` | \`feat: add cart total [PROJ-42]\` |
+| GitHub | \`feature/42-add-checkout\` | \`feat: add cart total (#42)\` |
+| Custom | depends on your pattern | appended in \`[brackets]\` |
+
+- You don't need to manually include the issue ID — the hook handles it
+- If you include it manually, the hook won't duplicate it
+- Set \`SKIP_PREPARE_COMMIT_MSG=1\` to skip for a specific commit
 `
     : "";
 
-  const slackLine = includeSlack ? "5. Slack notification is sent to the team\n" : "";
+  const slackLine = includeSlack
+    ? "5. Slack notification is sent to the team\n"
+    : "";
 
   return `# Contributing
 
@@ -136,9 +152,9 @@ npx release-it --dry-run --no-git.requireCleanWorkingDir
 
 ## Pull Requests
 
-- Name your branch: \`feature/JIRA-123-description\`, \`fix/JIRA-456-description\`, \`chore/JIRA-789-description\`
+- Name your branch: \`feature/ISSUE-123-description\`, \`fix/ISSUE-456-description\`, \`chore/ISSUE-789-description\`
 - PR title must follow conventional commits — enforced by CI
 - Squash merge is the default — your PR title becomes the changelog entry
 - Fill out the PR template: describe what changed, how to test, and why
-${jiraSection}`;
+${issueTrackerSection}`;
 }

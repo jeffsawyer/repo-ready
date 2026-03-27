@@ -1,6 +1,7 @@
 import enquirer from "enquirer";
 import chalk from "chalk";
 import { existsSync } from "fs";
+import fs from "fs-extra";
 import type { PackageManager } from "./detect.js";
 
 const { prompt } = enquirer;
@@ -12,13 +13,15 @@ export interface UserConfig {
   includeCommitlint: boolean;
   includeSlack: boolean;
   includeEmail: boolean;
+  issueTracker: "none" | "jira" | "github" | "linear" | "custom";
+  customIssuePattern: string;
   repoName: string;
   overwriteReleaseIt: boolean;
   overwritePrTemplate: boolean;
   overwriteContributing: boolean;
-  issueTracker: "none" | "jira" | "github" | "linear" | "custom";
-  customIssuePattern: string;
 }
+
+const PM_CHOICES: PackageManager[] = ["npm", "yarn", "pnpm", "bun"];
 
 export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig> {
   console.log();
@@ -28,54 +31,60 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     type: "select",
     name: "pm",
     message: "Package manager",
-    choices: ["npm", "yarn", "pnpm"],
-    initial: ["npm", "yarn", "pnpm"].indexOf(detectedPm),
-  });
+    choices: PM_CHOICES,
+    initial: PM_CHOICES.indexOf(detectedPm),
+  } as any);
 
   const { prodBranch } = await prompt<{ prodBranch: string }>({
     type: "input",
     name: "prodBranch",
     message: "Production branch name",
     initial: "main",
-  });
+  } as any);
 
   const { nodeVersion } = await prompt<{ nodeVersion: string }>({
     type: "input",
     name: "nodeVersion",
     message: "Node version for CI",
-    initial: "22",
-    validate: (val: string) => /^\d+$/.test(val.trim()) || "Enter a number (e.g. 22)",
-  });
+    initial: "20",
+    validate: (val: string) =>
+      /^\d+$/.test(val.trim()) || "Enter a number (e.g. 20)",
+  } as any);
 
   const { includeCommitlint } = await prompt<{ includeCommitlint: boolean }>({
     type: "confirm",
     name: "includeCommitlint",
-    message: "Include commitlint + lefthook?",
+    message: "Include commitlint + lefthook + prettier + eslint?",
     initial: true,
-  });
+  } as any);
 
-  const { issueTracker } = await prompt<{ issueTracker: UserConfig["issueTracker"] }>({
-    type: "select",
-    name: "issueTracker",
-    message: "Issue tracker (auto-appends issue ID to commits from branch name)",
-    choices: [
-      { name: "none", message: "None" },
-      { name: "jira", message: "Jira  (e.g. PROJ-123)" },
-      { name: "github", message: "GitHub Issues  (e.g. #123)" },
-      { name: "linear", message: "Linear  (e.g. ENG-123)" },
-      { name: "custom", message: "Custom pattern" },
-    ],
-  });
-
+  let issueTracker: UserConfig["issueTracker"] = "none";
   let customIssuePattern = "";
-  if (issueTracker === "custom") {
-    const { pattern } = await prompt<{ pattern: string }>({
-      type: "input",
-      name: "pattern",
-      message: "Branch pattern to extract (regex, e.g. [A-Z]{2,5}-[0-9]{1,4})",
-      initial: "[A-Z]{2,5}-[0-9]{1,4}",
-    });
-    customIssuePattern = pattern;
+
+  if (includeCommitlint) {
+    const { tracker } = await prompt<{ tracker: UserConfig["issueTracker"] }>({
+      type: "select",
+      name: "tracker",
+      message: "Issue tracker (auto-appends issue ID to commits from branch name)",
+      choices: [
+        { name: "none", message: "None" },
+        { name: "jira", message: "Jira  (e.g. PROJ-123)" },
+        { name: "github", message: "GitHub Issues  (e.g. #123)" },
+        { name: "linear", message: "Linear  (e.g. ENG-123)" },
+        { name: "custom", message: "Custom pattern" },
+      ],
+    } as any);
+    issueTracker = tracker;
+
+    if (issueTracker === "custom") {
+      const { pattern } = await prompt<{ pattern: string }>({
+        type: "input",
+        name: "pattern",
+        message: "Branch pattern to extract (regex, e.g. [A-Z]{2,5}-[0-9]{1,4})",
+        initial: "[A-Z]{2,5}-[0-9]{1,4}",
+      } as any);
+      customIssuePattern = pattern;
+    }
   }
 
   const { includeSlack } = await prompt<{ includeSlack: boolean }>({
@@ -83,14 +92,14 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     name: "includeSlack",
     message: "Include Slack release notification?",
     initial: true,
-  });
+  } as any);
 
   const { includeEmail } = await prompt<{ includeEmail: boolean }>({
     type: "confirm",
     name: "includeEmail",
     message: "Include email release notification?",
     initial: false,
-  });
+  } as any);
 
   // Check for existing files
   const overwriteReleaseIt = existsSync(".release-it.json")
@@ -105,22 +114,21 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     ? await confirmOverwrite("CONTRIBUTING.md")
     : true;
 
-  // Try to get repo name from package.json or cwd
   const pkgName = await getPackageName();
 
   return {
     pm,
     prodBranch: prodBranch || "main",
-    nodeVersion: parseInt(nodeVersion, 10) || 22,
+    nodeVersion: parseInt(nodeVersion, 10) || 20,
     includeCommitlint,
     includeSlack,
     includeEmail,
+    issueTracker,
+    customIssuePattern,
     repoName: pkgName,
     overwriteReleaseIt,
     overwritePrTemplate,
     overwriteContributing,
-    issueTracker,
-    customIssuePattern,
   };
 }
 
@@ -130,13 +138,12 @@ async function confirmOverwrite(filename: string): Promise<boolean> {
     name: "overwrite",
     message: `${chalk.yellow(filename)} already exists. Overwrite?`,
     initial: false,
-  });
+  } as any);
   return overwrite;
 }
 
 async function getPackageName(): Promise<string> {
   try {
-    const fs = await import("fs-extra");
     const pkg = await fs.readJson("package.json");
     return pkg.name || process.cwd().split("/").pop() || "my-project";
   } catch {

@@ -31,13 +31,22 @@ export async function generateFiles(
     }
 
     // GitHub workflows
-    await fs.writeFile(".github/workflows/release.yml", generateReleaseWorkflow(config, detected));
+    await fs.writeFile(
+      ".github/workflows/release.yml",
+      generateReleaseWorkflow(config, detected)
+    );
     generated.push(".github/workflows/release.yml");
 
-    await fs.writeFile(".github/workflows/deploy-and-release.yml", generateDeployWorkflow(config));
+    await fs.writeFile(
+      ".github/workflows/deploy-and-release.yml",
+      generateDeployWorkflow(config)
+    );
     generated.push(".github/workflows/deploy-and-release.yml");
 
-    await fs.writeFile(".github/workflows/pr-title.yml", generatePrTitleWorkflow());
+    await fs.writeFile(
+      ".github/workflows/pr-title.yml",
+      generatePrTitleWorkflow()
+    );
     generated.push(".github/workflows/pr-title.yml");
 
     // PR template
@@ -46,13 +55,20 @@ export async function generateFiles(
       generated.push(".github/pull_request_template.md");
     }
 
-    // commitlint + lefthook
+    // commitlint + lefthook + prettier + eslint
     if (config.includeCommitlint) {
-      await fs.writeFile("commitlint.config.js", await commitlintConfig());
-      generated.push("commitlint.config.js");
+      // Always use .mjs to avoid ESM/CJS conflicts regardless of project type
+      await fs.writeFile("commitlint.config.mjs", commitlintConfig());
+      generated.push("commitlint.config.mjs");
 
       await fs.writeFile("lefthook.yml", lefthookConfig(config.issueTracker !== "none"));
       generated.push("lefthook.yml");
+
+      await fs.writeFile(".prettierrc", prettierConfig());
+      generated.push(".prettierrc");
+
+      await fs.writeFile("eslint.config.js", eslintConfig());
+      generated.push("eslint.config.js");
 
       if (config.issueTracker !== "none") {
         await fs.ensureDir(".lefthook/prepare-commit-msg");
@@ -60,14 +76,20 @@ export async function generateFiles(
           ".lefthook/prepare-commit-msg/add-tracked-issue.sh",
           issueTrackerScript(config.issueTracker, config.customIssuePattern)
         );
-        await fs.chmod(".lefthook/prepare-commit-msg/add-tracked-issue.sh", "755");
+        await fs.chmod(
+          ".lefthook/prepare-commit-msg/add-tracked-issue.sh",
+          "755"
+        );
         generated.push(".lefthook/prepare-commit-msg/add-tracked-issue.sh");
       }
     }
 
     // CONTRIBUTING.md
     if (config.overwriteContributing) {
-      await fs.writeFile("CONTRIBUTING.md", generateContributing(config, detected));
+      await fs.writeFile(
+        "CONTRIBUTING.md",
+        generateContributing(config, detected)
+      );
       generated.push("CONTRIBUTING.md");
     }
 
@@ -79,7 +101,7 @@ export async function generateFiles(
 
     spinner.succeed("Files generated");
     return { paths: generated };
-  } catch (err) {
+  } catch (err: unknown) {
     spinner.fail("File generation failed");
     throw err;
   }
@@ -161,16 +183,35 @@ function prTemplate(): string {
 `;
 }
 
-async function commitlintConfig(): Promise<string> {
-  try {
-    const pkg = await fs.readJson("package.json");
-    const isEsm = pkg.type === "module";
-    return isEsm
-      ? `export default { extends: ["@commitlint/config-conventional"] };\n`
-      : `module.exports = { extends: ["@commitlint/config-conventional"] };\n`;
-  } catch {
-    return `module.exports = { extends: ["@commitlint/config-conventional"] };\n`;
-  }
+function commitlintConfig(): string {
+  return `export default { extends: ["@commitlint/config-conventional"] };\n`;
+}
+
+function prettierConfig(): string {
+  return JSON.stringify(
+    {
+      semi: true,
+      singleQuote: false,
+      trailingComma: "es5",
+      printWidth: 100,
+      tabWidth: 2,
+      useTabs: false,
+    },
+    null,
+    2
+  ) + "\n";
+}
+
+function eslintConfig(): string {
+  return `import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(
+  { ignores: ["dist/**", ".astro/**", "node_modules/**"] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+);
+`;
 }
 
 function lefthookConfig(includeIssueTracker: boolean): string {
@@ -186,11 +227,11 @@ prepare-commit-msg:
   return `pre-commit:
   commands:
     format:
-      glob: '**/*.{js,jsx,ts,tsx}'
+      glob: '!**/node_modules/**/*.{js,jsx,ts,tsx}'
       run: npx prettier --write {staged_files} && git add {staged_files}
     lint:
-      glob: '**/*.{js,jsx,ts,tsx}'
-      run: npx eslint --fix {staged_files} && git add {staged_files}
+      glob: '!**/node_modules/**/*.{js,jsx,ts,tsx}'
+      run: npx eslint --fix --no-warn-ignored {staged_files} && git add {staged_files}
 ${prepareHook}
 commit-msg:
   commands:

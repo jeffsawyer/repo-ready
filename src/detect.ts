@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { execSync } from "child_process";
 
-export type PackageManager = "npm" | "yarn" | "pnpm";
+export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
 export interface DetectResult {
   pm: PackageManager;
@@ -27,12 +27,16 @@ export async function detectPackageManager(): Promise<DetectResult> {
     pm = "pnpm";
   } else if (existsSync("yarn.lock")) {
     pm = "yarn";
+  } else if (existsSync("bun.lock") || existsSync("bun.lockb")) {
+    pm = "bun";
   } else if (!existsSync("package-lock.json")) {
     // No lockfile — detect from environment
     if (hasCommand("pnpm")) {
       pm = "pnpm";
     } else if (hasCommand("yarn")) {
       pm = "yarn";
+    } else if (hasCommand("bun")) {
+      pm = "bun";
     }
   }
 
@@ -61,6 +65,13 @@ function buildResult(pm: PackageManager): DetectResult {
       runCmd: "pnpm",
       frozenInstallCmd: "pnpm install --frozen-lockfile",
       addDevCmd: (pkgs) => `pnpm add -D ${pkgs.join(" ")}`,
+    },
+    bun: {
+      pm: "bun",
+      installCmd: "bun install",
+      runCmd: "bun run",
+      frozenInstallCmd: "bun install --frozen-lockfile",
+      addDevCmd: (pkgs) => `bun add -d ${pkgs.join(" ")}`,
     },
   };
 

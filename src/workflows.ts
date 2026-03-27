@@ -1,7 +1,10 @@
 import type { UserConfig } from "./prompts.js";
 import type { DetectResult } from "./detect.js";
 
-export function generateReleaseWorkflow(config: UserConfig, detected: DetectResult): string {
+export function generateReleaseWorkflow(
+  config: UserConfig,
+  detected: DetectResult
+): string {
   const { nodeVersion, includeSlack, pm } = config;
   const { frozenInstallCmd } = detected;
 
@@ -41,29 +44,23 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: actions/setup-node@v4.4.0
+      - uses: actions/setup-node@v4
         with:
           node-version: ${nodeVersion}
           cache: '${pm}'
 
       - run: ${frozenInstallCmd}
 
-      - name: Configure git identity
-        run: |
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-
       - name: Release
         id: release
         run: npm run release
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
-          LEFTHOOK: 0
 ${slackStep}
 `;
 }

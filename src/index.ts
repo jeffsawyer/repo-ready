@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import chalk from "chalk";
-import { existsSync } from "fs";
+import fs from "fs-extra";
 import enquirer from "enquirer";
 import { execa } from "execa";
 import { detectPackageManager } from "./detect.js";
@@ -11,7 +11,7 @@ import { generateFiles } from "./generate.js";
 const { prompt } = enquirer;
 
 async function ensurePackageJson(): Promise<void> {
-  if (existsSync("package.json")) return;
+  if (fs.existsSync("package.json")) return;
 
   console.log(chalk.yellow("⚠  No package.json found in current directory."));
   console.log(chalk.dim(`   ${process.cwd()}\n`));
@@ -21,7 +21,7 @@ async function ensurePackageJson(): Promise<void> {
     name: "shouldInit",
     message: "Run npm init -y to create one now?",
     initial: true,
-  });
+  } as any);
 
   if (!shouldInit) {
     console.log(
@@ -37,7 +37,7 @@ async function ensurePackageJson(): Promise<void> {
     await execa("npm", ["init", "-y"]);
     spinner.succeed("package.json created");
     console.log();
-  } catch (err) {
+  } catch (err: unknown) {
     spinner.fail("npm init failed");
     throw err;
   }
@@ -62,7 +62,9 @@ async function main() {
   // Detect package manager
   const detected = await detectPackageManager();
   console.log(
-    chalk.green(`✔`) + chalk.dim(` Detected package manager: `) + chalk.bold(detected.pm)
+    chalk.green(`✔`) +
+      chalk.dim(` Detected package manager: `) +
+      chalk.bold(detected.pm)
   );
 
   // Run prompts
@@ -89,7 +91,7 @@ async function main() {
   console.log(chalk.bold("Next steps:"));
 
   const steps = [
-    "Commit all generated files",
+    `Commit all generated files with ${chalk.cyan("[skip ci]")} to prevent a premature release:\n     ${chalk.dim(`git commit -m "chore: repo-ready setup [skip ci]"`)}`,
     `In GitHub repo settings → Pull Requests → enable ${chalk.bold(
       "Squash merging"
     )} (default to PR title + description)`,
@@ -109,7 +111,9 @@ async function main() {
     `Customize ${chalk.cyan(
       ".github/workflows/deploy-and-release.yml"
     )} for your actual deploy pipeline`,
-    `Test with: ${chalk.cyan("npx release-it --dry-run --no-git.requireCleanWorkingDir")}`
+    `Test with: ${chalk.cyan(
+      "npx release-it --dry-run --no-git.requireCleanWorkingDir"
+    )}`
   );
 
   steps.forEach((step, i) => {

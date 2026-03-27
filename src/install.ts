@@ -18,20 +18,21 @@ export async function installPackages(
     "eslint",
     "@eslint/js",
     "typescript-eslint",
+    "typescript@~5.8.3",
   ];
 
   await runInstall(pm, corePackages, "Installing release-it + changelog plugin");
 
   if (includeCommitlint) {
-    await runInstall(pm, lintPackages, "Installing commitlint + lefthook");
+    await runInstall(pm, lintPackages, "Installing commitlint, lefthook, prettier + eslint");
   }
 
-  // Write scripts directly to package.json — works for npm, yarn, and pnpm
+  // Write scripts directly to package.json — works for npm, yarn, pnpm and bun
   const scriptsSpinner = ora("Adding scripts to package.json").start();
   try {
     const pkg = await fs.readJson("package.json");
     pkg.scripts = pkg.scripts ?? {};
-    pkg.scripts.release = "release-it --ci";
+    pkg.scripts.release = "LEFTHOOK=0 release-it --ci";
     if (includeCommitlint) {
       pkg.scripts.prepare = "lefthook install";
     }
@@ -39,7 +40,7 @@ export async function installPackages(
     scriptsSpinner.succeed("Added scripts to package.json");
   } catch {
     scriptsSpinner.fail(
-      'Could not update package.json — add manually: "release": "release-it --ci"'
+      'Could not update package.json — add manually: "release": "LEFTHOOK=0 release-it --ci"'
     );
   }
 
@@ -49,22 +50,28 @@ export async function installPackages(
       await execa("npx", ["lefthook", "install"]);
       prepareSpinner.succeed("Lefthook hooks installed");
     } catch {
-      prepareSpinner.fail("Could not install lefthook hooks — run `npx lefthook install` manually");
+      prepareSpinner.fail(
+        "Could not install lefthook hooks — run `npx lefthook install` manually"
+      );
     }
   }
 }
 
-async function runInstall(pm: string, packages: string[], label: string): Promise<void> {
+async function runInstall(
+  pm: string,
+  packages: string[],
+  label: string
+): Promise<void> {
   const spinner = ora(label).start();
-
   const args = getInstallArgs(pm, packages);
 
   try {
     await execa(pm, args, { stdio: "pipe" });
     spinner.succeed(label);
-  } catch (err) {
+  } catch (err: unknown) {
     spinner.fail(`${label} — failed`);
-    throw new Error(`Install failed: ${(err as Error).message}`, { cause: err });
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Install failed: ${message}`, { cause: err });
   }
 }
 
@@ -74,6 +81,8 @@ function getInstallArgs(pm: string, packages: string[]): string[] {
       return ["add", "-D", ...packages];
     case "pnpm":
       return ["add", "-D", ...packages];
+    case "bun":
+      return ["add", "-d", ...packages];
     default:
       return ["install", "-D", ...packages];
   }
