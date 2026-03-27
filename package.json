@@ -61,6 +61,17 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.0.0"
   },
+  "resolutions": {
+    "conventional-recommended-bump": "^9.0.0"
+  },
+  "overrides": {
+    "conventional-recommended-bump": "^9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "conventional-recommended-bump": "^9.0.0"
+    }
+  },
   "engines": {
     "node": ">=18"
   }
