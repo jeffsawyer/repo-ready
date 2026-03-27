@@ -19,11 +19,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jeffsawyer/repo-ready"
+    "url": "git+https://github.com/jeffsawyer/repo-ready.git"
   },
   "type": "module",
   "bin": {
-    "repo-ready": "./dist/index.js"
+    "repo-ready": "dist/index.js"
   },
   "files": [
     "dist",
