@@ -6,7 +6,7 @@ export function generateReleaseWorkflow(
   detected: DetectResult
 ): string {
   const { nodeVersion, includeSlack, pm } = config;
-  const { frozenInstallCmd } = detected;
+  const { frozenInstallCmd, runCmd } = detected;
 
   // bun doesn't use actions/setup-node cache
   const cacheConfig = pm !== "bun" ? `
@@ -73,7 +73,7 @@ ${setupStep}
 
       - name: Release
         id: release
-        run: npx --no-install release-it --ci
+        run: ${runCmd} release
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           LEFTHOOK: 0
