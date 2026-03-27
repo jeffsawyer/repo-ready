@@ -1,17 +1,15 @@
 # repo-ready
 
-Zero-friction release automation setup for JS/TS repos. One command wires up release-it, conventional changelog, commitlint, lefthook, GitHub Actions, and optional Slack notifications.
+Zero-friction release automation setup for JS/TS repos. One command wires up release-it, conventional changelog, commitlint, lefthook, GitHub Actions, Slack notifications, and more.
 
 ## Usage
-
 ```bash
-npx repo-ready
+npx @jeffsawyer/repo-ready
 ```
 
 Or install globally:
-
 ```bash
-npm install -g repo-ready
+npm install -g @jeffsawyer/repo-ready
 repo-ready
 ```
 
@@ -28,9 +26,9 @@ repo-ready
 - `CHANGELOG.md` (if missing)
 
 **Optional:**
-- `commitlint` + `lefthook` for local commit message enforcement
-  - Auto-appends Jira ticket number from branch name (e.g. `feature/PROJ-42` → `[PROJ-42]`)
-  - Prettier + ESLint on staged files
+- `commitlint` + `lefthook` + `prettier` + `eslint` for local commit and code quality enforcement
+  - Auto-appends issue ID from branch name — supports Jira, Linear, GitHub Issues, or a custom pattern
+  - Prettier and ESLint run automatically on staged files
 - Slack release notification via [slackapi/slack-github-action](https://github.com/slackapi/slack-github-action)
 
 ## Philosophy
@@ -44,26 +42,29 @@ This tool is built around a **squash-merge workflow**:
 
 This means your changelog writes itself, versions are always correct, and your team only needs to follow one rule: **write a good PR title**.
 
+## Supported package managers
+
+npm, yarn, pnpm, and bun are all detected automatically from your lockfile.
+
 ## Requirements
 
 - Node.js 18+
-- A `package.json` in the current directory
+- A `package.json` in the current directory (or let repo-ready create one)
 - Git initialized
 
 ## GitHub Secrets
 
-| Secret | Required | Description |
-|--------|----------|-------------|
-| `GITHUB_TOKEN` | ✅ Always | Auto-provided by GitHub Actions |
-| `SLACK_RELEASE_WEBHOOK_URL` | If Slack enabled | Slack Incoming Webhook URL |
+| Secret                      | Required         | Description                      |
+|-----------------------------|------------------|----------------------------------|
+| `GITHUB_TOKEN`              | Always           | Auto-provided by GitHub Actions  |
+| `SLACK_RELEASE_WEBHOOK_URL` | If Slack enabled | Slack Incoming Webhook URL       |
 
 ## Local development
-
 ```bash
-git clone https://github.com/yourusername/repo-ready
+git clone https://github.com/jeffsawyer/repo-ready
 cd repo-ready
-npm install
-npm run dev
+yarn install
+yarn dev
 ```
 
 ## License

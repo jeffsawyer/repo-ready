@@ -34,7 +34,7 @@ export async function installPackages(
     pkg.scripts = pkg.scripts ?? {};
     pkg.scripts.release = "LEFTHOOK=0 release-it --ci";
     if (includeCommitlint) {
-      pkg.scripts.prepare = "lefthook install";
+      pkg.scripts.prepare = "npx lefthook install";
     }
     await fs.writeJson("package.json", pkg, { spaces: 2 });
     scriptsSpinner.succeed("Added scripts to package.json");

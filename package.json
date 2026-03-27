@@ -1,6 +1,6 @@
 {
-  "name": "repo-ready",
-  "version": "0.1.0",
+  "name": "@jeffsawyer/repo-ready",
+  "version": "0.2.2",
   "description": "Zero-friction release automation setup for JS/TS repos — release-it, changelog, commitlint, lefthook, GitHub Actions, and Slack notifications in one command.",
   "keywords": [
     "release-it",
@@ -10,13 +10,16 @@
     "semantic-release",
     "github-actions",
     "cli",
-    "scaffold"
+    "scaffold",
+    "bun",
+    "prettier",
+    "eslint"
   ],
-  "author": "",
+  "author": "Jeff Sawyer",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/repo-ready"
+    "url": "https://github.com/jeffsawyer/repo-ready"
   },
   "type": "module",
   "bin": {
@@ -24,13 +27,17 @@
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/index.js",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "LEFTHOOK=0 release-it --ci",
+    "prepare": "npx lefthook install"
   },
   "dependencies": {
     "chalk": "^5.3.0",
@@ -40,10 +47,17 @@
     "ora": "^8.0.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@eslint/js": "^9.0.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.0",
+    "eslint": "^9.0.0",
+    "lefthook": "^2.1.4",
+    "prettier": "^3.0.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.0.0"
   },
   "engines": {
     "node": ">=18"
