@@ -19,20 +19,20 @@ async function ensurePackageJson(): Promise<void> {
   const { shouldInit } = await prompt<{ shouldInit: boolean }>({
     type: "confirm",
     name: "shouldInit",
-    message: "Run npm init -y to create one now?",
+    message: "Create a basic package.json to continue?",
     initial: true,
   } as any);
 
   if (!shouldInit) {
     console.log(
       chalk.red("\n✖ Cannot continue without a package.json.") +
-        chalk.dim("\n  Run `npm init` in your project directory first.\n")
+        chalk.dim("\n  Run `npm init` (or equivalent) in your project directory first.\n")
     );
     process.exit(1);
   }
 
   const ora = (await import("ora")).default;
-  const spinner = ora("Running npm init -y").start();
+  const spinner = ora("Creating package.json").start();
   try {
     await execa("npm", ["init", "-y"]);
     spinner.succeed("package.json created");

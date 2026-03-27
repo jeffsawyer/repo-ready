@@ -6,7 +6,22 @@ export function generateReleaseWorkflow(
   detected: DetectResult
 ): string {
   const { nodeVersion, includeSlack, pm } = config;
-  const { frozenInstallCmd } = detected;
+  const { frozenInstallCmd, runCmd } = detected;
+
+  // bun doesn't use actions/setup-node cache
+  const cacheConfig = pm !== "bun" ? `
+          cache: '${pm}'` : "";
+
+  // bun needs its own setup action
+  const setupStep = pm === "bun"
+    ? `      - uses: oven-sh/setup-bun@v2
+
+      - run: ${frozenInstallCmd}`
+    : `      - uses: actions/setup-node@v4
+        with:
+          node-version: ${nodeVersion}${cacheConfig}
+
+      - run: ${frozenInstallCmd}`;
 
   const slackStep = includeSlack
     ? `
@@ -49,16 +64,16 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${nodeVersion}
-          cache: '${pm}'
+${setupStep}
 
-      - run: ${frozenInstallCmd}
+      - name: Configure git identity
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
 
       - name: Release
         id: release
-        run: npm run release
+        run: ${runCmd} release
         env:
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
 ${slackStep}

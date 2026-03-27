@@ -27,8 +27,7 @@ export function generateContributing(
 |------------------------|----------------------------------------------------------------|
 | \`pre-commit\` → format  | Runs Prettier on staged files                                  |
 | \`pre-commit\` → lint    | Runs ESLint on staged files                                    |
-${issueTrackerRow}
-| \`commit-msg\`           | Validates commit message follows conventional commits          |
+${issueTrackerRow ? issueTrackerRow + "\n" : ""}| \`commit-msg\`           | Validates commit message follows conventional commits          |
 
 Hooks are installed automatically. If they stop working, run:
 
