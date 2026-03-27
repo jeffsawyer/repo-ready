@@ -33,14 +33,14 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     message: "Package manager",
     choices: PM_CHOICES,
     initial: PM_CHOICES.indexOf(detectedPm),
-  } as any);
+  });
 
   const { prodBranch } = await prompt<{ prodBranch: string }>({
     type: "input",
     name: "prodBranch",
     message: "Production branch name",
     initial: "main",
-  } as any);
+  });
 
   const { nodeVersion } = await prompt<{ nodeVersion: string }>({
     type: "input",
@@ -49,14 +49,14 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     initial: "20",
     validate: (val: string) =>
       /^\d+$/.test(val.trim()) || "Enter a number (e.g. 20)",
-  } as any);
+  });
 
   const { includeCommitlint } = await prompt<{ includeCommitlint: boolean }>({
     type: "confirm",
     name: "includeCommitlint",
     message: "Include commitlint + lefthook + prettier + eslint?",
     initial: true,
-  } as any);
+  });
 
   let issueTracker: UserConfig["issueTracker"] = "none";
   let customIssuePattern = "";
@@ -73,7 +73,7 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
         { name: "linear", message: "Linear  (e.g. ENG-123)" },
         { name: "custom", message: "Custom pattern" },
       ],
-    } as any);
+    });
     issueTracker = tracker;
 
     if (issueTracker === "custom") {
@@ -82,7 +82,7 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
         name: "pattern",
         message: "Branch pattern to extract (regex, e.g. [A-Z]{2,5}-[0-9]{1,4})",
         initial: "[A-Z]{2,5}-[0-9]{1,4}",
-      } as any);
+      });
       customIssuePattern = pattern;
     }
   }
@@ -92,14 +92,14 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     name: "includeSlack",
     message: "Include Slack release notification?",
     initial: true,
-  } as any);
+  });
 
   const { includeEmail } = await prompt<{ includeEmail: boolean }>({
     type: "confirm",
     name: "includeEmail",
     message: "Include email release notification?",
     initial: false,
-  } as any);
+  });
 
   // Check for existing files
   const overwriteReleaseIt = existsSync(".release-it.json")
@@ -138,7 +138,7 @@ async function confirmOverwrite(filename: string): Promise<boolean> {
     name: "overwrite",
     message: `${chalk.yellow(filename)} already exists. Overwrite?`,
     initial: false,
-  } as any);
+  });
   return overwrite;
 }
 

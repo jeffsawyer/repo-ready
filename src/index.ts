@@ -21,7 +21,7 @@ async function ensurePackageJson(): Promise<void> {
     name: "shouldInit",
     message: "Create a basic package.json to continue?",
     initial: true,
-  } as any);
+  });
 
   if (!shouldInit) {
     console.log(

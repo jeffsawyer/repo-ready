@@ -27,10 +27,9 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-
       - name: Release
         id: release
-        run: npm run release
+        run: npx --no-install release-it --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LEFTHOOK: 0
