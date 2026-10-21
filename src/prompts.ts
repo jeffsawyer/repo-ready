@@ -21,7 +21,7 @@ export interface UserConfig {
   overwriteContributing: boolean;
 }
 
-const PM_CHOICES: PackageManager[] = ["npm", "yarn", "pnpm", "bun"];
+const PM_CHOICES: PackageManager[] = ["pnpm", "npm", "yarn", "bun"];
 
 export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig> {
   console.log();
@@ -47,8 +47,7 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     name: "nodeVersion",
     message: "Node version for CI",
     initial: "20",
-    validate: (val: string) =>
-      /^\d+$/.test(val.trim()) || "Enter a number (e.g. 20)",
+    validate: (val: string) => /^\d+$/.test(val.trim()) || "Enter a number (e.g. 20)",
   });
 
   const { includeCommitlint } = await prompt<{ includeCommitlint: boolean }>({

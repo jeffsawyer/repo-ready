@@ -1,0 +1,8 @@
+# pnpm 12 reads project settings from this file. `packages` is omitted so only
+# the repository root is included.
+overrides:
+  conventional-changelog-conventionalcommits: 8.0.0
+
+allowBuilds:
+  esbuild: true
+  lefthook: true

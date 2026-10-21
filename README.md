@@ -3,19 +3,22 @@
 Zero-friction release automation setup for JS/TS repos. One command wires up release-it, conventional changelog, commitlint, lefthook, GitHub Actions, Slack notifications, and more.
 
 ## Usage
+
 ```bash
-npx @jeffsawyer/repo-ready
+pnpm dlx @jeffsawyer/repo-ready
 ```
 
 Or install globally:
+
 ```bash
-npm install -g @jeffsawyer/repo-ready
+pnpm add -g @jeffsawyer/repo-ready
 repo-ready
 ```
 
 ## What it sets up
 
 **Always:**
+
 - [`release-it`](https://github.com/release-it/release-it) + [`@release-it/conventional-changelog`](https://github.com/release-it/conventional-changelog) for automated versioning and changelog
 - `.release-it.json` with opinionated defaults (conventional commits, GitHub releases, no npm publish)
 - `.github/workflows/release.yml` — reusable release workflow (callable via `workflow_call` or manually via `workflow_dispatch`)
@@ -26,6 +29,7 @@ repo-ready
 - `CHANGELOG.md` (if missing)
 
 **Optional:**
+
 - `commitlint` + `lefthook` + `prettier` + `eslint` for local commit and code quality enforcement
   - Auto-appends issue ID from branch name — supports Jira, Linear, GitHub Issues, or a custom pattern
   - Prettier and ESLint run automatically on staged files
@@ -44,7 +48,9 @@ This means your changelog writes itself, versions are always correct, and your t
 
 ## Supported package managers
 
-npm, yarn, pnpm, and bun are all detected automatically from your lockfile.
+pnpm is the default. When a project has no lockfile, repo-ready uses pnpm if it is installed, then yarn, bun, and npm. You can change that choice in the prompt.
+
+If a lockfile is present, that package manager is used instead: `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`, or `bun.lock`.
 
 ## Requirements
 
@@ -54,18 +60,21 @@ npm, yarn, pnpm, and bun are all detected automatically from your lockfile.
 
 ## GitHub Secrets
 
-| Secret                      | Required         | Description                      |
-|-----------------------------|------------------|----------------------------------|
-| `GITHUB_TOKEN`              | Always           | Auto-provided by GitHub Actions  |
-| `SLACK_RELEASE_WEBHOOK_URL` | If Slack enabled | Slack Incoming Webhook URL       |
+| Secret                      | Required         | Description                     |
+| --------------------------- | ---------------- | ------------------------------- |
+| `GITHUB_TOKEN`              | Always           | Auto-provided by GitHub Actions |
+| `SLACK_RELEASE_WEBHOOK_URL` | If Slack enabled | Slack Incoming Webhook URL      |
 
 ## Local development
+
 ```bash
 git clone https://github.com/jeffsawyer/repo-ready
 cd repo-ready
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
+
+This repository pins pnpm in the `packageManager` field of `package.json`.
 
 ## License
 

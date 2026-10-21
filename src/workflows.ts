@@ -1,25 +1,32 @@
 import type { UserConfig } from "./prompts.js";
 import type { DetectResult } from "./detect.js";
 
-export function generateReleaseWorkflow(
-  config: UserConfig,
-  detected: DetectResult
-): string {
+export function generateReleaseWorkflow(config: UserConfig, detected: DetectResult): string {
   const { nodeVersion, includeSlack, pm } = config;
   const { frozenInstallCmd, runCmd } = detected;
 
-  // bun doesn't use actions/setup-node cache
-  const cacheConfig = pm !== "bun" ? `
-          cache: '${pm}'` : "";
-
-  // bun needs its own setup action
-  const setupStep = pm === "bun"
-    ? `      - uses: oven-sh/setup-bun@v2
+  // pnpm and bun need their own setup before install. setup-node's pnpm
+  // cache only works once the pnpm binary is already on PATH.
+  const setupStep =
+    pm === "bun"
+      ? `      - uses: oven-sh/setup-bun@v2
 
       - run: ${frozenInstallCmd}`
-    : `      - uses: actions/setup-node@v4
+      : pm === "pnpm"
+        ? `      - uses: pnpm/action-setup@v6
         with:
-          node-version: ${nodeVersion}${cacheConfig}
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${nodeVersion}
+          cache: pnpm
+
+      - run: ${frozenInstallCmd}`
+        : `      - uses: actions/setup-node@v4
+        with:
+          node-version: ${nodeVersion}
+          cache: '${pm}'
 
       - run: ${frozenInstallCmd}`;
 

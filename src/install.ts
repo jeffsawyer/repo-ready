@@ -34,7 +34,7 @@ export async function installPackages(
     pkg.scripts = pkg.scripts ?? {};
     pkg.scripts.release = "LEFTHOOK=0 release-it --ci";
     if (includeCommitlint) {
-      pkg.scripts.prepare = "npx lefthook install";
+      pkg.scripts.prepare = pm === "pnpm" ? "pnpm exec lefthook install" : "npx lefthook install";
     }
     await fs.writeJson("package.json", pkg, { spaces: 2 });
     scriptsSpinner.succeed("Added scripts to package.json");
@@ -47,21 +47,23 @@ export async function installPackages(
   if (includeCommitlint) {
     const prepareSpinner = ora("Installing lefthook hooks").start();
     try {
-      await execa("npx", ["lefthook", "install"]);
+      if (pm === "pnpm") {
+        await execa("pnpm", ["exec", "lefthook", "install"]);
+      } else {
+        await execa("npx", ["lefthook", "install"]);
+      }
       prepareSpinner.succeed("Lefthook hooks installed");
     } catch {
       prepareSpinner.fail(
-        "Could not install lefthook hooks — run `npx lefthook install` manually"
+        pm === "pnpm"
+          ? "Could not install lefthook hooks — run `pnpm exec lefthook install` manually"
+          : "Could not install lefthook hooks — run `npx lefthook install` manually"
       );
     }
   }
 }
 
-async function runInstall(
-  pm: string,
-  packages: string[],
-  label: string
-): Promise<void> {
+async function runInstall(pm: string, packages: string[], label: string): Promise<void> {
   const spinner = ora(label).start();
   const args = getInstallArgs(pm, packages);
 

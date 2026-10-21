@@ -3,6 +3,9 @@ import { execSync } from "child_process";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
+/** Fallback when no lockfile exists and no package manager binary is installed. */
+export const DEFAULT_PACKAGE_MANAGER: PackageManager = "pnpm";
+
 export interface DetectResult {
   pm: PackageManager;
   installCmd: string;
@@ -11,7 +14,7 @@ export interface DetectResult {
   addDevCmd: (packages: string[]) => string;
 }
 
-function hasCommand(cmd: string): boolean {
+export function hasCommand(cmd: string): boolean {
   try {
     execSync(`command -v ${cmd}`, { stdio: "ignore" });
     return true;
@@ -21,26 +24,18 @@ function hasCommand(cmd: string): boolean {
 }
 
 export async function detectPackageManager(): Promise<DetectResult> {
-  let pm: PackageManager = "npm";
+  if (existsSync("pnpm-lock.yaml")) return buildResult("pnpm");
+  if (existsSync("yarn.lock")) return buildResult("yarn");
+  if (existsSync("bun.lock") || existsSync("bun.lockb")) return buildResult("bun");
+  if (existsSync("package-lock.json")) return buildResult("npm");
 
-  if (existsSync("pnpm-lock.yaml")) {
-    pm = "pnpm";
-  } else if (existsSync("yarn.lock")) {
-    pm = "yarn";
-  } else if (existsSync("bun.lock") || existsSync("bun.lockb")) {
-    pm = "bun";
-  } else if (!existsSync("package-lock.json")) {
-    // No lockfile — detect from environment
-    if (hasCommand("pnpm")) {
-      pm = "pnpm";
-    } else if (hasCommand("yarn")) {
-      pm = "yarn";
-    } else if (hasCommand("bun")) {
-      pm = "bun";
-    }
-  }
+  // No lockfile — pnpm is the default when it is available.
+  if (hasCommand("pnpm")) return buildResult("pnpm");
+  if (hasCommand("yarn")) return buildResult("yarn");
+  if (hasCommand("bun")) return buildResult("bun");
+  if (hasCommand("npm")) return buildResult("npm");
 
-  return buildResult(pm);
+  return buildResult(DEFAULT_PACKAGE_MANAGER);
 }
 
 function buildResult(pm: PackageManager): DetectResult {

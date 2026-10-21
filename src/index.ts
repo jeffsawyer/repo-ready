@@ -3,7 +3,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import enquirer from "enquirer";
 import { execa } from "execa";
-import { detectPackageManager } from "./detect.js";
+import { detectPackageManager, hasCommand } from "./detect.js";
 import { runPrompts } from "./prompts.js";
 import { installPackages } from "./install.js";
 import { generateFiles } from "./generate.js";
@@ -26,19 +26,24 @@ async function ensurePackageJson(): Promise<void> {
   if (!shouldInit) {
     console.log(
       chalk.red("\n✖ Cannot continue without a package.json.") +
-        chalk.dim("\n  Run `npm init` (or equivalent) in your project directory first.\n")
+        chalk.dim("\n  Run `pnpm init` in your project directory first.\n")
     );
     process.exit(1);
   }
 
   const ora = (await import("ora")).default;
   const spinner = ora("Creating package.json").start();
+  const initWithPnpm = hasCommand("pnpm");
   try {
-    await execa("npm", ["init", "-y"]);
+    if (initWithPnpm) {
+      await execa("pnpm", ["init"]);
+    } else {
+      await execa("npm", ["init", "-y"]);
+    }
     spinner.succeed("package.json created");
     console.log();
   } catch (err: unknown) {
-    spinner.fail("npm init failed");
+    spinner.fail(initWithPnpm ? "pnpm init failed" : "npm init failed");
     throw err;
   }
 }
@@ -62,9 +67,7 @@ async function main() {
   // Detect package manager
   const detected = await detectPackageManager();
   console.log(
-    chalk.green(`✔`) +
-      chalk.dim(` Detected package manager: `) +
-      chalk.bold(detected.pm)
+    chalk.green(`✔`) + chalk.dim(` Detected package manager: `) + chalk.bold(detected.pm)
   );
 
   // Run prompts
@@ -111,9 +114,7 @@ async function main() {
     `Customize ${chalk.cyan(
       ".github/workflows/deploy-and-release.yml"
     )} for your actual deploy pipeline`,
-    `Test with: ${chalk.cyan(
-      "npx release-it --dry-run --no-git.requireCleanWorkingDir"
-    )}`
+    `Test with: ${chalk.cyan("npx release-it --dry-run --no-git.requireCleanWorkingDir")}`
   );
 
   steps.forEach((step, i) => {

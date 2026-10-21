@@ -3,8 +3,8 @@
 ## Getting Started
 
 ```bash
-yarn install
-yarn start
+pnpm install
+pnpm start
 ```
 
 ## Commit Message Convention
@@ -12,17 +12,17 @@ yarn start
 This project follows the [Conventional Commits](https://www.conventionalcommits.org/en) specification. Each commit message must be prefixed with a type:
 
 | Type       | Description                  | Appears in CHANGELOG |
-|------------|------------------------------|----------------------|
+| ---------- | ---------------------------- | -------------------- |
 | `feat`     | New feature                  | Yes ✓                |
-| `fix`       | Bug fix                       | Yes ✓                |
-| `refactor` | Code change (no feature/fix)  | Yes ✓                |
+| `fix`      | Bug fix                      | Yes ✓                |
+| `refactor` | Code change (no feature/fix) | Yes ✓                |
 | `perf`     | Performance improvement      | Yes ✓                |
-| `docs`     | Documentation only           | No  x                |
-| `test`     | Adding or updating tests     | No  x                |
-| `build`    | Build system or dependencies | No  x                |
-| `ci`       | CI/CD configuration           | No  x                |
-| `chore`    | Maintenance / tooling        | No  x                |
-| `style`    | Formatting (no code change)  | No  x                |
+| `docs`     | Documentation only           | No x                 |
+| `test`     | Adding or updating tests     | No x                 |
+| `build`    | Build system or dependencies | No x                 |
+| `ci`       | CI/CD configuration          | No x                 |
+| `chore`    | Maintenance / tooling        | No x                 |
+| `style`    | Formatting (no code change)  | No x                 |
 
 ### Format
 
@@ -57,17 +57,17 @@ FEAT: things              # uppercase type
 
 [Lefthook](https://github.com/evilmartians/lefthook) runs the following hooks automatically:
 
-| Hook                   | What it does                                                  |
-|------------------------|---------------------------------------------------------------|
-| `pre-commit` → format  | Runs Prettier on staged files                                  |
-| `pre-commit` → lint    | Runs ESLint on staged files                                    |
-| `prepare-commit-msg`   | Auto-appends Jira ticket from branch name (e.g. `[PROJ-123]`) |
-| `commit-msg`           | Validates commit message follows conventional commits         |
+| Hook                  | What it does                                                  |
+| --------------------- | ------------------------------------------------------------- |
+| `pre-commit` → format | Runs Prettier on staged files                                 |
+| `pre-commit` → lint   | Runs ESLint on staged files                                   |
+| `prepare-commit-msg`  | Auto-appends Jira ticket from branch name (e.g. `[PROJ-123]`) |
+| `commit-msg`          | Validates commit message follows conventional commits         |
 
 Hooks are installed automatically. If they stop working, run:
 
 ```bash
-npx lefthook install
+pnpm exec lefthook install
 ```
 
 > **Tip**: You can skip hooks in an emergency with `git commit --no-verify`, but avoid doing this regularly.
@@ -93,7 +93,7 @@ We squash-merge every PR into `main`. This means:
 Versions follow [Semantic Versioning](https://semver.org/):
 
 | Commit type                  | Version bump  | Example       |
-|------------------------------|---------------|---------------|
+| ---------------------------- | ------------- | ------------- |
 | `fix:`                       | Patch (0.0.X) | 1.2.3 → 1.2.4 |
 | `feat:`                      | Minor (0.X.0) | 1.2.3 → 1.3.0 |
 | `BREAKING CHANGE:` in footer | Major (X.0.0) | 1.2.3 → 2.0.0 |
@@ -103,7 +103,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 To preview what a release would look like without making any changes:
 
 ```bash
-npx release-it --dry-run --no-git.requireCleanWorkingDir
+pnpm exec release-it --dry-run --no-git.requireCleanWorkingDir
 ```
 
 ## Pull Requests
