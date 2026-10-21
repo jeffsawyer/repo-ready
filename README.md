@@ -74,7 +74,7 @@ pnpm install
 pnpm dev
 ```
 
-This repository pins pnpm in the `packageManager` field of `package.json`.
+This repository uses Node 26 (`.nvmrc`) and pins pnpm in the `packageManager` field of `package.json`.
 
 ## License
 
