@@ -66,8 +66,8 @@ describe("package manager selection", { concurrency: false }, () => {
     );
     assert.equal(commandsFor("pnpm").bin("lefthook install"), "pnpm exec lefthook install");
     assert.equal(commandsFor("npm").bin("release-it --dry-run"), "npx release-it --dry-run");
-    assert.match(pnpmWorkflow, /actions\/checkout@v4\.2\.2/);
-    assert.match(pnpmWorkflow, /actions\/setup-node@v4\.4\.0/);
+    assert.match(pnpmWorkflow, /actions\/checkout@v7\.0\.1/);
+    assert.match(pnpmWorkflow, /actions\/setup-node@v7\.1\.0/);
     assert.doesNotMatch(generateReleaseWorkflow(config("yarn")), /corepack enable/);
   });
 
@@ -77,7 +77,7 @@ describe("package manager selection", { concurrency: false }, () => {
     writeFileSync(join(pinned, "package.json"), JSON.stringify({ packageManager: "pnpm@12.14.0" }));
     process.chdir(pinned);
     const workflow = generateReleaseWorkflow(config("pnpm"));
-    assert.match(workflow, /pnpm\/action-setup@v6/);
+    assert.match(workflow, /pnpm\/action-setup@v6\.1\.0/);
     assert.doesNotMatch(workflow, /version: 12/);
 
     const unpinned = join(root, "unpinned");
@@ -185,7 +185,7 @@ describe("package manager selection", { concurrency: false }, () => {
     const workflow = generateReleaseWorkflow(config("yarn"));
     assert.match(workflow, /corepack enable/);
     assert.match(workflow, /yarn install --immutable/);
-    assert.match(workflow, /actions\/setup-node@v4\.4\.0/);
+    assert.match(workflow, /actions\/setup-node@v7\.1\.0/);
     assert.doesNotMatch(workflow, /--frozen-lockfile/);
 
     const classic = join(root, "yarn-classic");
