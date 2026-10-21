@@ -77,19 +77,20 @@ pnpm exec lefthook install
 
 ## Release Process
 
-We squash-merge every PR into `main`. This means:
+We merge feature pull requests into `develop`. This means:
 
 1. **Your PR title is the commit message** — make sure it follows conventional commits
 2. **Your PR description is the changelog detail** — write it for someone who wasn't in the room
 
 > **Important**: When squash-merging, GitHub stacks all individual commit messages into the merge body by default. Clean this up — remove the stacked messages and keep only a clear description of the change.
 
-### What happens automatically on merge to `main`
+### What happens automatically on merge to `develop`
 
 1. [release-it](https://github.com/release-it/release-it) determines the version bump from commit types (`feat` → minor, `fix` → patch)
 2. `CHANGELOG.md` is updated with the new version and its changes
 3. `package.json` version is bumped
 4. A git tag (`v1.2.3`) and GitHub Release are created
+5. Open a pull request from `develop` into `main`. `main` only accepts pull requests, so the release job cannot push the version commit there itself.
 
 ### Version bumping
 
