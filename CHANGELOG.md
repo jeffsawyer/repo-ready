@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0](https://github.com/jeffsawyer/repo-ready/compare/v0.3.2...v0.4.0) (2026-10-21)
+
+### Features
+
+* make pnpm the default package manager ([bf98ab4](https://github.com/jeffsawyer/repo-ready/commit/bf98ab4483da3d9c3e244b325db0d8ea94e24c8d))
+
+### Bug Fixes
+
+* follow the selected package manager in generated setup ([7ba7057](https://github.com/jeffsawyer/repo-ready/commit/7ba705715333f31c4c33b5616d5541c1de084007))
+* let pnpm 12 install lefthook and keep Yarn 1 hooks working ([81bc4b4](https://github.com/jeffsawyer/repo-ready/commit/81bc4b4f9aab683daf06f8a9d24bacb6a0adddbc))
+
 ## [0.3.2](https://github.com/jeffsawyer/repo-ready/compare/v0.3.1...v0.3.2) (2026-03-27)
 
 ## [0.3.1](https://github.com/jeffsawyer/repo-ready/compare/v0.3.0...v0.3.1) (2026-03-27)
