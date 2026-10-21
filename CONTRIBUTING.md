@@ -2,7 +2,10 @@
 
 ## Getting Started
 
+pnpm 12 does not run on Node's older Corepack. Install it, then install dependencies:
+
 ```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 pnpm install
 pnpm start
 ```

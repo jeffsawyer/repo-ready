@@ -1,5 +1,8 @@
 import type { UserConfig } from "./prompts.js";
-import { commandsFor, declaredPackageManager } from "./detect.js";
+import { commandsFor, declaredPackageManager, usesYarnBerry } from "./detect.js";
+
+const CHECKOUT_ACTION = "actions/checkout@v4.2.2";
+const SETUP_NODE_ACTION = "actions/setup-node@v4.4.0";
 
 export function generateReleaseWorkflow(config: UserConfig): string {
   const { nodeVersion, includeSlack, pm } = config;
@@ -7,6 +10,9 @@ export function generateReleaseWorkflow(config: UserConfig): string {
 
   // pnpm and bun need their own setup before install. setup-node's pnpm
   // cache only works once the pnpm binary is already on PATH.
+  // Yarn 2+ only accepts `yarn install --immutable`, and CI needs corepack
+  // enabled first so the packageManager pin is the yarn that runs.
+  const yarnPreamble = pm === "yarn" && usesYarnBerry() ? `      - run: corepack enable\n\n` : "";
   const setupStep =
     pm === "bun"
       ? `      - uses: oven-sh/setup-bun@v2
@@ -14,13 +20,13 @@ export function generateReleaseWorkflow(config: UserConfig): string {
       - run: ${frozenInstallCmd}`
       : pm === "pnpm"
         ? `      - uses: pnpm/action-setup@v6
-${pnpmSetupVersion()}      - uses: actions/setup-node@v4
+${pnpmSetupVersion()}      - uses: ${SETUP_NODE_ACTION}
         with:
           node-version: ${nodeVersion}
           cache: pnpm
 
       - run: ${frozenInstallCmd}`
-        : `      - uses: actions/setup-node@v4
+        : `${yarnPreamble}      - uses: ${SETUP_NODE_ACTION}
         with:
           node-version: ${nodeVersion}
           cache: '${pm}'
@@ -63,7 +69,7 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: ${CHECKOUT_ACTION}
         with:
           fetch-depth: 0
           fetch-tags: true

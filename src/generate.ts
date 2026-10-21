@@ -81,6 +81,11 @@ export async function generateFiles(config: UserConfig): Promise<GeneratedFiles>
       generated.push("CHANGELOG.md");
     }
 
+    // pnpm add --allow-build writes this. It has to be committed or CI install fails.
+    if (config.pm === "pnpm" && config.includeCommitlint && existsSync("pnpm-workspace.yaml")) {
+      generated.push("pnpm-workspace.yaml");
+    }
+
     spinner.succeed("Files generated");
     return { paths: generated };
   } catch (err: unknown) {
@@ -131,6 +136,7 @@ function releaseItConfig() {
 
 function prTemplate(): string {
   return `## Description
+
 <!-- PR title must be conventional: feat: / fix: / chore: / etc. — it becomes the changelog entry -->
 
 ## Type of change
@@ -142,18 +148,23 @@ function prTemplate(): string {
 - [ ] refactor (code change with no feature/fix)
 
 ## Summary
+
 <!-- Brief description of what changed and why -->
 
 ## Reviewer Testing
+
 <!-- Steps to verify the change -->
+
 1.
 2.
 3.
 
 ## Expected Outcome
+
 <!-- What should reviewers see? Include screenshots or GIFs for visual changes -->
 
 ## Additional Notes
+
 <!-- Any extra context, new env vars, package updates, etc. Delete if not needed -->
 
 <!--

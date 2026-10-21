@@ -40,6 +40,7 @@
     "release": "LEFTHOOK=0 release-it --ci",
     "prepare": "pnpm exec lefthook install",
     "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "test": "node --import tsx --test test/*.test.ts"
   },
   "dependencies": {
@@ -63,12 +64,6 @@
     "tsx": "^4.23.15",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.72.0"
-  },
-  "resolutions": {
-    "conventional-changelog-conventionalcommits": "8.0.0"
-  },
-  "overrides": {
-    "conventional-changelog-conventionalcommits": "8.0.0"
   },
   "engines": {
     "node": "^22.22.2 || ^24.15.0 || >=26"
