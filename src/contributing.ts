@@ -1,21 +1,19 @@
 import type { UserConfig } from "./prompts.js";
-import type { DetectResult } from "./detect.js";
+import { commandsFor } from "./detect.js";
 
-export function generateContributing(
-  config: UserConfig,
-  detected: DetectResult
-): string {
+export function generateContributing(config: UserConfig): string {
   const { prodBranch, includeCommitlint, includeSlack, issueTracker } = config;
-  const { installCmd, runCmd } = detected;
+  const { installCmd, runCmd, bin } = commandsFor(config.pm);
 
   const hookEnforcement = includeCommitlint
     ? `- **Locally**: [lefthook](https://github.com/evilmartians/lefthook) runs [commitlint](https://commitlint.js.org/) on every commit via the \`commit-msg\` git hook
 - **On GitHub**: A PR title check workflow validates that PR titles follow the same format (since we squash-merge, the PR title becomes the merge commit message)`
     : `- **On GitHub**: A PR title check workflow validates that PR titles follow conventional commits (since we squash-merge, the PR title becomes the merge commit message)`;
 
-  const issueTrackerRow = issueTracker !== "none"
-    ? `| \`prepare-commit-msg\`   | Auto-appends issue ID from branch name (e.g. \`[PROJ-123]\`, \`(#42)\`) |`
-    : "";
+  const issueTrackerRow =
+    issueTracker !== "none"
+      ? `| \`prepare-commit-msg\`   | Auto-appends issue ID from branch name (e.g. \`[PROJ-123]\`, \`(#42)\`) |`
+      : "";
 
   const hooksSection = includeCommitlint
     ? `
@@ -32,15 +30,16 @@ ${issueTrackerRow ? issueTrackerRow + "\n" : ""}| \`commit-msg\`           | Val
 Hooks are installed automatically. If they stop working, run:
 
 \`\`\`bash
-npx lefthook install
+${bin("lefthook install")}
 \`\`\`
 
 > **Tip**: You can skip hooks in an emergency with \`git commit --no-verify\`, but avoid doing this regularly.
 `
     : "";
 
-  const issueTrackerSection = issueTracker !== "none"
-    ? `
+  const issueTrackerSection =
+    issueTracker !== "none"
+      ? `
 ### Issue tracking in commits
 
 A \`prepare-commit-msg\` hook automatically appends the issue ID from your branch name to each commit message.
@@ -55,11 +54,9 @@ A \`prepare-commit-msg\` hook automatically appends the issue ID from your branc
 - If you include it manually, the hook won't duplicate it
 - Set \`SKIP_PREPARE_COMMIT_MSG=1\` to skip for a specific commit
 `
-    : "";
+      : "";
 
-  const slackLine = includeSlack
-    ? "5. Slack notification is sent to the team\n"
-    : "";
+  const slackLine = includeSlack ? "5. Slack notification is sent to the team\n" : "";
 
   return `# Contributing
 
@@ -146,7 +143,7 @@ Versions follow [Semantic Versioning](https://semver.org/):
 To preview what a release would look like without making any changes:
 
 \`\`\`bash
-npx release-it --dry-run --no-git.requireCleanWorkingDir
+${bin("release-it --dry-run --no-git.requireCleanWorkingDir")}
 \`\`\`
 
 ## Pull Requests

@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import { existsSync } from "fs";
 import ora from "ora";
 import type { UserConfig } from "./prompts.js";
-import type { DetectResult } from "./detect.js";
+import { commandsFor } from "./detect.js";
 import {
   generateReleaseWorkflow,
   generateDeployWorkflow,
@@ -14,10 +14,7 @@ export interface GeneratedFiles {
   paths: string[];
 }
 
-export async function generateFiles(
-  config: UserConfig,
-  detected: DetectResult
-): Promise<GeneratedFiles> {
+export async function generateFiles(config: UserConfig): Promise<GeneratedFiles> {
   const spinner = ora("Generating files").start();
   const generated: string[] = [];
 
@@ -31,7 +28,7 @@ export async function generateFiles(
     }
 
     // GitHub workflows
-    await fs.writeFile(".github/workflows/release.yml", generateReleaseWorkflow(config, detected));
+    await fs.writeFile(".github/workflows/release.yml", generateReleaseWorkflow(config));
     generated.push(".github/workflows/release.yml");
 
     await fs.writeFile(".github/workflows/deploy-and-release.yml", generateDeployWorkflow(config));
@@ -52,7 +49,7 @@ export async function generateFiles(
       await fs.writeFile("commitlint.config.mjs", commitlintConfig());
       generated.push("commitlint.config.mjs");
 
-      await fs.writeFile("lefthook.yml", lefthookConfig(config.issueTracker !== "none"));
+      await fs.writeFile("lefthook.yml", lefthookConfig(config));
       generated.push("lefthook.yml");
 
       await fs.writeFile(".prettierrc", prettierConfig());
@@ -74,7 +71,7 @@ export async function generateFiles(
 
     // CONTRIBUTING.md
     if (config.overwriteContributing) {
-      await fs.writeFile("CONTRIBUTING.md", generateContributing(config, detected));
+      await fs.writeFile("CONTRIBUTING.md", generateContributing(config));
       generated.push("CONTRIBUTING.md");
     }
 
@@ -201,31 +198,33 @@ export default tseslint.config(
 `;
 }
 
-function lefthookConfig(includeIssueTracker: boolean): string {
-  const prepareHook = includeIssueTracker
-    ? `
+function lefthookConfig(config: UserConfig): string {
+  const { bin } = commandsFor(config.pm);
+  const prepareHook =
+    config.issueTracker !== "none"
+      ? `
 prepare-commit-msg:
   scripts:
     'add-tracked-issue.sh':
       runner: bash
 `
-    : "";
+      : "";
 
   return `pre-commit:
   commands:
     format:
       glob: '**/*.{js,jsx,ts,tsx}'
       exclude: '**/node_modules/**'
-      run: npx prettier --write {staged_files} && git add {staged_files}
+      run: ${bin("prettier --write {staged_files}")} && git add {staged_files}
     lint:
       glob: '**/*.{js,jsx,ts,tsx}'
       exclude: '**/node_modules/**'
-      run: npx eslint --fix --no-warn-ignored {staged_files} && git add {staged_files}
+      run: ${bin("eslint --fix --no-warn-ignored {staged_files}")} && git add {staged_files}
 ${prepareHook}
 commit-msg:
   commands:
     commitlint:
-      run: npx commitlint --edit {1}
+      run: ${bin("commitlint --edit {1}")}
 `;
 }
 

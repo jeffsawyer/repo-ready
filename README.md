@@ -48,13 +48,14 @@ This means your changelog writes itself, versions are always correct, and your t
 
 ## Supported package managers
 
-pnpm is the default. When a project has no lockfile, repo-ready uses pnpm if it is installed, then yarn, bun, and npm. You can change that choice in the prompt.
+pnpm is the default. With no lockfile, repo-ready reads the `packageManager` field, then pnpm, yarn, bun, and npm based on what is installed. You can change that choice in the prompt.
 
-If a lockfile is present, that package manager is used instead: `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`, or `bun.lock`.
+A lockfile wins over that field: `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`, or `bun.lock`.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 26, or another current release line: 22.22.2+ or 24.15+. The generated CI workflow defaults to 26.
+- pnpm 12.14.0
 - A `package.json` in the current directory (or let repo-ready create one)
 - Git initialized
 
@@ -67,14 +68,15 @@ If a lockfile is present, that package manager is used instead: `pnpm-lock.yaml`
 
 ## Local development
 
+pnpm 12 is a standalone program. Install it with the pnpm installer, then clone the repo. The `packageManager` field selects pnpm 12.14.0, and `.nvmrc` selects Node 26.
+
 ```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 git clone https://github.com/jeffsawyer/repo-ready
 cd repo-ready
 pnpm install
 pnpm dev
 ```
-
-This repository uses Node 26 (`.nvmrc`) and pins pnpm in the `packageManager` field of `package.json`.
 
 ## License
 

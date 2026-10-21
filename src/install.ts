@@ -4,10 +4,10 @@ import fs from "fs-extra";
 import type { DetectResult } from "./detect.js";
 
 export async function installPackages(
-  detected: DetectResult,
+  selected: DetectResult,
   includeCommitlint: boolean
 ): Promise<void> {
-  const { pm } = detected;
+  const { pm, bin } = selected;
 
   const corePackages = ["release-it", "@release-it/conventional-changelog"];
   const lintPackages = [
@@ -34,7 +34,7 @@ export async function installPackages(
     pkg.scripts = pkg.scripts ?? {};
     pkg.scripts.release = "LEFTHOOK=0 release-it --ci";
     if (includeCommitlint) {
-      pkg.scripts.prepare = pm === "pnpm" ? "pnpm exec lefthook install" : "npx lefthook install";
+      pkg.scripts.prepare = bin("lefthook install");
     }
     await fs.writeJson("package.json", pkg, { spaces: 2 });
     scriptsSpinner.succeed("Added scripts to package.json");
@@ -47,17 +47,12 @@ export async function installPackages(
   if (includeCommitlint) {
     const prepareSpinner = ora("Installing lefthook hooks").start();
     try {
-      if (pm === "pnpm") {
-        await execa("pnpm", ["exec", "lefthook", "install"]);
-      } else {
-        await execa("npx", ["lefthook", "install"]);
-      }
+      const [cmd, ...args] = bin("lefthook install").split(" ");
+      await execa(cmd, args);
       prepareSpinner.succeed("Lefthook hooks installed");
     } catch {
       prepareSpinner.fail(
-        pm === "pnpm"
-          ? "Could not install lefthook hooks — run `pnpm exec lefthook install` manually"
-          : "Could not install lefthook hooks — run `npx lefthook install` manually"
+        `Could not install lefthook hooks — run \`${bin("lefthook install")}\` manually`
       );
     }
   }

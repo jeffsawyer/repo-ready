@@ -3,7 +3,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import enquirer from "enquirer";
 import { execa } from "execa";
-import { detectPackageManager, hasCommand } from "./detect.js";
+import { commandsFor, detectPackageManager, hasCommand } from "./detect.js";
 import { runPrompts } from "./prompts.js";
 import { installPackages } from "./install.js";
 import { generateFiles } from "./generate.js";
@@ -70,16 +70,17 @@ async function main() {
     chalk.green(`✔`) + chalk.dim(` Detected package manager: `) + chalk.bold(detected.pm)
   );
 
-  // Run prompts
+  // Run prompts. Every later command follows the choice, not the lockfile that was detected.
   const config = await runPrompts(detected.pm);
+  const selected = commandsFor(config.pm);
 
   console.log();
   console.log(chalk.bold("📦 Installing packages..."));
-  await installPackages(detected, config.includeCommitlint);
+  await installPackages(selected, config.includeCommitlint);
 
   console.log();
   console.log(chalk.bold("📝 Generating files..."));
-  const { paths } = await generateFiles(config, detected);
+  const { paths } = await generateFiles(config);
 
   // Summary
   console.log();
@@ -114,7 +115,7 @@ async function main() {
     `Customize ${chalk.cyan(
       ".github/workflows/deploy-and-release.yml"
     )} for your actual deploy pipeline`,
-    `Test with: ${chalk.cyan("npx release-it --dry-run --no-git.requireCleanWorkingDir")}`
+    `Test with: ${chalk.cyan(selected.bin("release-it --dry-run --no-git.requireCleanWorkingDir"))}`
   );
 
   steps.forEach((step, i) => {

@@ -1,9 +1,9 @@
 import type { UserConfig } from "./prompts.js";
-import type { DetectResult } from "./detect.js";
+import { commandsFor, declaredPackageManager } from "./detect.js";
 
-export function generateReleaseWorkflow(config: UserConfig, detected: DetectResult): string {
+export function generateReleaseWorkflow(config: UserConfig): string {
   const { nodeVersion, includeSlack, pm } = config;
-  const { frozenInstallCmd, runCmd } = detected;
+  const { frozenInstallCmd, runCmd } = commandsFor(pm);
 
   // pnpm and bun need their own setup before install. setup-node's pnpm
   // cache only works once the pnpm binary is already on PATH.
@@ -14,10 +14,7 @@ export function generateReleaseWorkflow(config: UserConfig, detected: DetectResu
       - run: ${frozenInstallCmd}`
       : pm === "pnpm"
         ? `      - uses: pnpm/action-setup@v6
-        with:
-          version: 12
-
-      - uses: actions/setup-node@v4
+${pnpmSetupVersion()}      - uses: actions/setup-node@v4
         with:
           node-version: ${nodeVersion}
           cache: pnpm
@@ -85,6 +82,15 @@ ${setupStep}
           GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
           LEFTHOOK: 0
 ${slackStep}
+`;
+}
+
+/** action-setup rejects a version input that is not the exact packageManager pin. */
+function pnpmSetupVersion(): string {
+  if (declaredPackageManager() === "pnpm") return "\n";
+  return `        with:
+          version: 12
+
 `;
 }
 
