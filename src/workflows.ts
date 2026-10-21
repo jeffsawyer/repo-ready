@@ -1,8 +1,8 @@
 import type { UserConfig } from "./prompts.js";
 import { commandsFor, declaredPackageManager, usesYarnBerry } from "./detect.js";
 
-const CHECKOUT_ACTION = "actions/checkout@v4.2.2";
-const SETUP_NODE_ACTION = "actions/setup-node@v4.4.0";
+const CHECKOUT_ACTION = "actions/checkout@v7.0.1";
+const SETUP_NODE_ACTION = "actions/setup-node@v7.1.0";
 
 export function generateReleaseWorkflow(config: UserConfig): string {
   const { nodeVersion, includeSlack, pm } = config;
@@ -19,7 +19,7 @@ export function generateReleaseWorkflow(config: UserConfig): string {
 
       - run: ${frozenInstallCmd}`
       : pm === "pnpm"
-        ? `      - uses: pnpm/action-setup@v6
+        ? `      - uses: pnpm/action-setup@v6.1.0
 ${pnpmSetupVersion()}      - uses: ${SETUP_NODE_ACTION}
         with:
           node-version: ${nodeVersion}
