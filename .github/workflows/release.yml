@@ -16,12 +16,14 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - uses: pnpm/action-setup@v6
+
       - uses: actions/setup-node@v4.4.0
         with:
-          node-version: 22
-          cache: 'yarn'
+          node-version: 26
+          cache: pnpm
 
-      - run: yarn --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
       - name: Configure git identity
         run: |
@@ -30,7 +32,7 @@ jobs:
 
       - name: Release
         id: release
-        run: yarn release
+        run: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LEFTHOOK: 0

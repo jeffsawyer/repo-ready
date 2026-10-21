@@ -1,13 +1,13 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"editor.fontFamily": "JetBrains Mono, Menlo, Monaco, monospace",
-		"editor.fontLigatures": true,
-		"editor.fontSize": 13,
-		"editor.lineHeight": 1.6
-	}
+  "folders": [
+    {
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 13,
+    "editor.lineHeight": 1.6,
+  },
 }

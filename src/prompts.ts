@@ -2,7 +2,7 @@ import enquirer from "enquirer";
 import chalk from "chalk";
 import { existsSync } from "fs";
 import fs from "fs-extra";
-import type { PackageManager } from "./detect.js";
+import { DEFAULT_NODE_VERSION, type PackageManager } from "./detect.js";
 
 const { prompt } = enquirer;
 
@@ -21,7 +21,7 @@ export interface UserConfig {
   overwriteContributing: boolean;
 }
 
-const PM_CHOICES: PackageManager[] = ["npm", "yarn", "pnpm", "bun"];
+const PM_CHOICES: PackageManager[] = ["pnpm", "npm", "yarn", "bun"];
 
 export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig> {
   console.log();
@@ -46,9 +46,9 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
     type: "input",
     name: "nodeVersion",
     message: "Node version for CI",
-    initial: "20",
+    initial: String(DEFAULT_NODE_VERSION),
     validate: (val: string) =>
-      /^\d+$/.test(val.trim()) || "Enter a number (e.g. 20)",
+      /^\d+$/.test(val.trim()) || `Enter a number (e.g. ${DEFAULT_NODE_VERSION})`,
   });
 
   const { includeCommitlint } = await prompt<{ includeCommitlint: boolean }>({
@@ -119,7 +119,7 @@ export async function runPrompts(detectedPm: PackageManager): Promise<UserConfig
   return {
     pm,
     prodBranch: prodBranch || "main",
-    nodeVersion: parseInt(nodeVersion, 10) || 20,
+    nodeVersion: parseInt(nodeVersion, 10) || DEFAULT_NODE_VERSION,
     includeCommitlint,
     includeSlack,
     includeEmail,

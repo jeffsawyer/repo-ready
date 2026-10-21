@@ -3,19 +3,22 @@
 Zero-friction release automation setup for JS/TS repos. One command wires up release-it, conventional changelog, commitlint, lefthook, GitHub Actions, Slack notifications, and more.
 
 ## Usage
+
 ```bash
-npx @jeffsawyer/repo-ready
+pnpm dlx @jeffsawyer/repo-ready
 ```
 
 Or install globally:
+
 ```bash
-npm install -g @jeffsawyer/repo-ready
+pnpm add -g @jeffsawyer/repo-ready
 repo-ready
 ```
 
 ## What it sets up
 
 **Always:**
+
 - [`release-it`](https://github.com/release-it/release-it) + [`@release-it/conventional-changelog`](https://github.com/release-it/conventional-changelog) for automated versioning and changelog
 - `.release-it.json` with opinionated defaults (conventional commits, GitHub releases, no npm publish)
 - `.github/workflows/release.yml` — reusable release workflow (callable via `workflow_call` or manually via `workflow_dispatch`)
@@ -26,6 +29,7 @@ repo-ready
 - `CHANGELOG.md` (if missing)
 
 **Optional:**
+
 - `commitlint` + `lefthook` + `prettier` + `eslint` for local commit and code quality enforcement
   - Auto-appends issue ID from branch name — supports Jira, Linear, GitHub Issues, or a custom pattern
   - Prettier and ESLint run automatically on staged files
@@ -44,27 +48,35 @@ This means your changelog writes itself, versions are always correct, and your t
 
 ## Supported package managers
 
-npm, yarn, pnpm, and bun are all detected automatically from your lockfile.
+pnpm is the default. With no lockfile, repo-ready reads `devEngines.packageManager`, then the `packageManager` field, then pnpm, yarn, bun, and npm based on what is installed. You can change that choice in the prompt.
+
+A lockfile wins over those fields. Detection checks `pnpm-lock.yaml`, then `yarn.lock`, then `bun.lock` or `bun.lockb`, then `package-lock.json`.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 26, or another current release line: 22.22.2+ or 24.15+. The generated CI workflow defaults to 26.
 - A `package.json` in the current directory (or let repo-ready create one)
 - Git initialized
 
+Running the CLI does not require pnpm. Projects that choose pnpm, and anyone working on this repo, need pnpm 12. The installer is in [Local development](#local-development).
+
 ## GitHub Secrets
 
-| Secret                      | Required         | Description                      |
-|-----------------------------|------------------|----------------------------------|
-| `GITHUB_TOKEN`              | Always           | Auto-provided by GitHub Actions  |
-| `SLACK_RELEASE_WEBHOOK_URL` | If Slack enabled | Slack Incoming Webhook URL       |
+| Secret                      | Required         | Description                     |
+| --------------------------- | ---------------- | ------------------------------- |
+| `GITHUB_TOKEN`              | Always           | Auto-provided by GitHub Actions |
+| `SLACK_RELEASE_WEBHOOK_URL` | If Slack enabled | Slack Incoming Webhook URL      |
 
 ## Local development
+
+pnpm 12 is a standalone program. Install it with the pnpm installer, then clone the repo. The `packageManager` field selects pnpm 12.14.0, and `.nvmrc` selects Node 26.
+
 ```bash
+curl -fsSL https://get.pnpm.io/install.sh | sh -
 git clone https://github.com/jeffsawyer/repo-ready
 cd repo-ready
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
 
 ## License

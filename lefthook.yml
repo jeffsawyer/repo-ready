@@ -1,20 +1,20 @@
 pre-commit:
   commands:
     format:
-      glob: '**/*.{js,jsx,ts,tsx}'
-      exclude: '**/node_modules/**'
-      run: npx prettier --write {staged_files} && git add {staged_files}
+      glob: "**/*.{js,jsx,ts,tsx}"
+      exclude: "**/node_modules/**"
+      run: pnpm exec prettier --write {staged_files} && git add {staged_files}
     lint:
-      glob: '**/*.{js,jsx,ts,tsx}'
-      exclude: '**/node_modules/**'
-      run: npx eslint --fix --no-warn-ignored {staged_files} && git add {staged_files}
+      glob: "**/*.{js,jsx,ts,tsx}"
+      exclude: "**/node_modules/**"
+      run: pnpm exec eslint --fix --no-warn-ignored {staged_files} && git add {staged_files}
 
 prepare-commit-msg:
   scripts:
-    'add-tracked-issue.sh':
+    "add-tracked-issue.sh":
       runner: bash
 
 commit-msg:
   commands:
     commitlint:
-      run: npx commitlint --edit {1}
+      run: pnpm exec commitlint --edit {1}
